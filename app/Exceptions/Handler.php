@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -24,7 +26,18 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            // global log
         });
+    }
+
+    public function report(Throwable $exception)
+    {
+        // make exceptions that within $internalDontReport reportable
+        if ($exception instanceof ValidationException) {
+            Log::error($exception->getMessage(), $exception->errors());
+            return;
+        }
+
+        parent::report($exception);
     }
 }
